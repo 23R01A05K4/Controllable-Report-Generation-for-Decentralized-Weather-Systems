@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Weather Brief | F-32 MVP</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Weather Brief home">
+      <span class="brand-icon" aria-hidden="true">W</span>
+      <span>Weather Brief<small>F-32 · Station intelligence</small></span>
+    </a>
+    <div class="topbar-meta"><span class="live-dot"></span> Local analysis workspace</div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">OBSERVE · UNDERSTAND · REPORT</p>
+        <h1>Weather insights,<br><span>grounded in the data.</span></h1>
+        <p class="hero-copy">Turn station observations into clear, configurable summaries. Every finding links back to its source readings.</p>
+      </div>
+      <div class="hero-mark" aria-hidden="true">
+        <div class="sun"></div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div>
+        <div class="rain rain-one"></div><div class="rain rain-two"></div><div class="rain rain-three"></div>
+      </div>
+    </section>
+
+    <section class="workspace-grid" aria-label="Weather analysis workspace">
+      <aside class="panel data-panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">01 / INPUT</p><h2>Weather data</h2></div>
+          <span class="step-icon" aria-hidden="true">↗</span>
+        </div>
+        <p class="muted">Load a sample or provide GHCN-Daily CSV observations. Station metadata is optional.</p>
+        <button id="load-sample" class="button button-primary full-width" type="button"><span aria-hidden="true">✦</span> Load bundled NOAA dataset</button>
+        <div class="public-data-box">
+          <p class="field-label">Public NOAA GHCN-Daily data</p>
+          <p class="format-note">Fetch a station's observations from NOAA. The raw station file and inventory are cached in this project for local reuse.</p>
+          <label class="field-label" for="noaa-station">11-character station ID</label>
+          <input id="noaa-station" class="text-input" value="USW00094728" maxlength="11" autocomplete="off">
+          <div class="year-fields">
+            <label class="control-field">Start year<input id="noaa-start-year" class="text-input" type="number" min="1763"></label>
+            <label class="control-field">End year<input id="noaa-end-year" class="text-input" type="number" min="1763"></label>
+          </div>
+          <button id="load-noaa" class="button button-outline full-width" type="button">Fetch public station data</button>
+          <p id="source-label" class="source-label">No public dataset loaded.</p>
+        </div>
+        <div class="divider"><span>OR UPLOAD YOUR DATA</span></div>
+        <label class="field-label" for="observations-file">GHCN-Daily observations CSV <span class="required">Required</span></label>
+        <label class="file-picker" for="observations-file">
+          <span class="file-icon" aria-hidden="true">⇧</span><span id="observations-file-label">Choose observations CSV</span>
+        </label>
+        <input id="observations-file" type="file" accept=".csv,text/csv">
+        <label class="field-label station-label" for="stations-file">Station metadata CSV <span class="optional">Optional</span></label>
+        <label class="file-picker" for="stations-file">
+          <span class="file-icon" aria-hidden="true">⇧</span><span id="stations-file-label">Choose station metadata CSV</span>
+        </label>
+        <input id="stations-file" type="file" accept=".csv,text/csv">
+        <button id="analyze-data" class="button button-outline full-width" type="button" disabled>Analyze uploaded data</button>
+        <p class="format-note">Accepts standard GHCN-Daily CSV rows or a CSV with column headers. Upload limit: 8 MB.</p>
+      </aside>
+
+      <div class="results-column">
+        <section class="metrics-grid" aria-label="Dataset overview">
+          <article class="metric-card"><span class="metric-label">Observations</span><strong id="metric-observations">—</strong><span id="metric-period" class="metric-detail">Load data to begin</span></article>
+          <article class="metric-card"><span class="metric-label">Stations</span><strong id="metric-stations">—</strong><span class="metric-detail">Unique weather stations</span></article>
+          <article class="metric-card"><span class="metric-label">Anomalies</span><strong id="metric-anomalies">—</strong><span class="metric-detail">Robust outlier candidates</span></article>
+          <article class="metric-card"><span class="metric-label">QC passed</span><strong id="metric-quality">—</strong><span class="metric-detail">Valid supported readings</span></article>
+        </section>
+
+        <section class="panel insights-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">02 / ANALYTICS</p><h2>Station observations</h2></div>
+            <span id="dataset-range" class="date-chip">No dataset loaded</span>
+          </div>
+          <div id="element-legend" class="element-legend" aria-label="Observed weather elements"></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Station</th><th>Measure</th><th>Mean</th><th>Range</th><th>Latest</th></tr></thead>
+              <tbody id="station-table"><tr><td class="empty-state" colspan="5">Load the sample dataset to explore station-level analytics.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="insight-bottom">
+            <div class="subsection">
+              <h3>Unusual readings <span id="anomaly-count" class="count-badge">0</span></h3>
+              <div id="anomaly-list" class="anomaly-list"><p class="empty-copy">Anomaly candidates will appear here.</p></div>
+            </div>
+            <div class="subsection trend-subsection">
+              <h3>Observed trends</h3>
+              <div id="trend-list" class="trend-list"><p class="empty-copy">Trend summaries will appear here.</p></div>
+            </div>
+          </div>
+          <details class="qc-details">
+            <summary>Data quality details</summary>
+            <div id="quality-details" class="qc-grid"></div>
+          </details>
+        </section>
+
+        <section class="panel report-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">03 / REPORT BUILDER</p><h2>Shape the summary</h2></div>
+            <span class="step-icon" aria-hidden="true">✎</span>
+          </div>
+          <div class="controls-grid">
+            <label class="control-field">Audience
+              <select id="audience"><option value="executive">Executive</option><option value="analyst">Analyst</option><option value="public">Public</option></select>
+            </label>
+            <label class="control-field">Technical depth
+              <select id="depth"><option value="standard">Standard</option><option value="concise">Concise</option><option value="detailed">Detailed</option></select>
+            </label>
+            <label class="control-field">Tone
+              <select id="tone"><option value="neutral">Neutral</option><option value="formal">Formal</option><option value="plain">Plain language</option></select>
+            </label>
+            <label class="control-field">Report length
+              <select id="length"><option value="standard">Standard</option><option value="short">Short</option><option value="detailed">Detailed</option></select>
+            </label>
+          </div>
+          <fieldset class="topic-options">
+            <legend>Include topics</legend>
+            <label><input type="checkbox" name="topic" value="overview" checked> Overview</label>
+            <label><input type="checkbox" name="topic" value="anomalies" checked> Anomalies</label>
+            <label><input type="checkbox" name="topic" value="trends" checked> Trends</label>
+            <label><input type="checkbox" name="topic" value="stations" checked> Stations</label>
+          </fieldset>
+          <div class="report-actions">
+            <button id="generate-report" class="button button-primary" type="button" disabled>Generate verified report <span aria-hidden="true">→</span></button>
+            <span class="control-hint">Controls change presentation, not the measured facts.</span>
+          </div>
+        </section>
+
+        <section id="report-output" class="panel report-output hidden" aria-live="polite">
+          <div class="section-heading">
+            <div><p class="eyebrow">04 / VERIFIED OUTPUT</p><h2 id="report-title">Weather summary</h2></div>
+            <span id="verification-badge" class="verification-badge">Not generated</span>
+          </div>
+          <p id="report-intro" class="report-intro"></p>
+          <ul id="report-claims" class="report-claims"></ul>
+          <div id="report-scope" class="report-scope"></div>
+          <div class="report-footer">
+            <p id="provenance-summary"></p>
+            <div class="export-actions">
+              <button id="download-report" class="button button-outline" type="button">Download Markdown</button>
+              <button id="download-docx" class="button button-outline" type="button">Download DOCX</button>
+              <button id="print-report" class="button button-outline" type="button">Print / Save PDF</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+    <footer class="page-footer"><span>F-32 · Controllable Report Generation for Decentralized Weather Systems</span><span>Descriptive analysis only · Not a forecast</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
