@@ -175,11 +175,11 @@ function renderReport(report) {
   });
   const verification = report.verification;
   const badge = $("verification-badge");
-  badge.textContent = verification.verified ? "✓ All claims verified" : "Review needed";
+  badge.textContent = verification.verified ? "✓ Source links checked" : "Review needed";
   badge.classList.toggle("verification-failed", !verification.verified);
   const sourceCount = new Set(report.claims.flatMap((claim) => claim.source_observation_ids)).size;
-  $("provenance-summary").textContent = `${verification.checks.filter((check) => check.status === "verified").length} of ${verification.checks.length} statements verified against ${numberFormat.format(sourceCount)} source observation${sourceCount === 1 ? "" : "s"}.`;
-  $("report-scope").textContent = "Scope: descriptive analysis of supplied observations only; this is not a forecast. Verification confirms traceability to the structured claim store, not scientific correctness of the source data.";
+  $("provenance-summary").textContent = `${verification.checks.filter((check) => check.status === "verified").length} of ${verification.checks.length} statements linked to ${numberFormat.format(sourceCount)} source observation${sourceCount === 1 ? "" : "s"}.`;
+  $("report-scope").textContent = "Scope: descriptive analysis of supplied observations only; this is not a forecast. Checks confirm traceability to the structured claim store, not independent factual verification or scientific correctness of the source data.";
   $("report-output").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
