@@ -1,5 +1,9 @@
 # Controllable Report Generation for Decentralized Weather Systems
 
+[Open the live demo](https://controllable-report-generation-for.onrender.com/)
+
+Free Render hosting may take about a minute to wake after 15 minutes of inactivity. This is a public demo: use public or synthetic weather datasets, not confidential files.
+
 ## Weather Brief MVP
 
 A standalone, local MVP for **Controllable Report Generation for Decentralized Weather Systems**. It turns GHCN-Daily observations into station-level summaries, robust outlier candidates, observed-period comparisons, and audience-controlled reports whose claims link back to source observations.
@@ -18,7 +22,7 @@ Open <http://127.0.0.1:8000>. The bundled NOAA dataset loads automatically, incl
 ## MVP features
 
 - Reads standard headered GHCN-Daily CSV and the original eight-column, headerless format.
-- Bundles NOAA GHCN-Daily observations for Central Park (station `USW00094728`) from 2024 through the latest available 2026 report, together with station metadata. The original fixed-width NOAA station file and station inventory are cached locally under `data/public/`.
+- Bundles NOAA GHCN-Daily observations for Central Park (station `USW00094728`) from 2024 through October 20, 2026, together with station metadata. Raw station files and the station inventory are downloaded into a local `data/public/` cache when fetching NOAA data.
 - Fetches other NOAA GHCN-Daily stations by 11-character station ID and year range, converts fixed-width `.dly` records, and caches source files locally. Each selection is capped at five years; station records are refreshed from NOAA when fetched. Data source: [NOAA NCEI GHCN-Daily](https://www.ncei.noaa.gov/pub/data/ghcn/daily/).
 - Applies quality-flag, missing-value, date, supported-element, and plausible-range checks.
 - Reports per-station/per-element means, ranges, and most recent readings.
@@ -32,7 +36,7 @@ Open <http://127.0.0.1:8000>. The bundled NOAA dataset loads automatically, incl
 
 GHCN-Daily temperature elements (`TMAX`, `TMIN`, `TAVG`) and precipitation (`PRCP`) values are interpreted in tenths of degrees Celsius or tenths of millimetres respectively. Snow depth and snowfall values are in millimetres. `-9999` and non-empty quality flags are excluded. Supported elements are `PRCP`, `SNOW`, `SNWD`, `TMAX`, `TMIN`, and `TAVG`.
 
-Each CSV upload is limited to 8 MB. Uploaded data is processed in memory by the local server and is not stored. Bindings are restricted to `127.0.0.1`. Use only trusted datasets on this development MVP.
+Each CSV upload is limited to 8 MB. Uploaded data is processed in memory by the local server and is not stored. The default server binding is `127.0.0.1`; hosted deployments can override it with `HOST`. Use only trusted datasets on this development MVP.
 
 The presentation's proposed LLM/RAG component is represented here by deterministic, fact-first templates that retrieve structured facts by selected report topics. This keeps the demo usable without credentials and ensures statements are selected from structured analytics rather than generated freely. This is not an LLM or a distributed compute cluster. No forecast or production authentication is included.
 
@@ -44,13 +48,13 @@ python -m unittest discover -s tests -v
 
 ## Project structure
 
-- `weather_pipeline.py` — CSV parsing, QC, analytics, facts, report generation, and verification.
-- `server.py` — local HTTP API and static-file server.
-- `static/` — responsive dashboard and report builder.
-- `data/sample-observations.csv` and `data/sample-stations.csv` — bundled NOAA public data for offline startup.
-- `data/sample-observations-synthetic.csv` and `data/sample-stations-synthetic.csv` — preserved synthetic demo data.
-- `data/public/` — cached source `.dly` station data and NOAA inventory used to build the bundled sample.
-- `tests/` — pipeline tests.
+- `weather_pipeline.py` - CSV parsing, QC, analytics, facts, report generation, and verification.
+- `server.py` - local HTTP API and static-file server.
+- `static/` - responsive dashboard and report builder.
+- `data/sample-observations.csv` and `data/sample-stations.csv` - bundled NOAA public data for offline startup.
+- `data/sample-observations-synthetic.csv` and `data/sample-stations-synthetic.csv` - preserved synthetic demo data.
+- `data/public/` - cached source `.dly` station data and NOAA inventory used to build the bundled sample.
+- `tests/` - pipeline tests.
 
 ## Deployment notes
 
