@@ -173,3 +173,6 @@ tbody td { color: #71809a; }
   #report-output { position: absolute; inset: 0; width: 100%; border: 0; box-shadow: none; }
   .report-footer, .page-footer, .topbar { display: none !important; }
 }
+
+/* Keep the decorative weather mark clear of copy on narrow phones. */
+@media (max-width: 480px) { .hero-mark { display: none; } }
