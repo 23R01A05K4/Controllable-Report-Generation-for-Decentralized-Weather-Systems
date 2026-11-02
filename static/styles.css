@@ -176,3 +176,7 @@ tbody td { color: #71809a; }
 
 /* Keep the decorative weather mark clear of copy on narrow phones. */
 @media (max-width: 480px) { .hero-mark { display: none; } }
+
+/* Allow grid children to shrink so tables scroll inside the panel on phones. */
+.panel, .control-field, .results-column > * { min-width: 0; }
+@media (max-width: 760px) { .controls-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
